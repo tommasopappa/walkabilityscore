@@ -1,0 +1,649 @@
+{
+  "dataset_info": {
+    "name": "MassDOT Roads GeoJSON",
+    "source": "Massachusetts Department of Transportation (MassDOT) and MassGIS",
+    "analysis_date": "2025-06-02 14:04:28"
+  },
+  "statistics": {
+    "basic": {
+      "total_segments": 408292,
+      "total_attributes": 71,
+      "geometry_type": "LineString",
+      "feature_collection_type": "FeatureCollection"
+    },
+    "road_classification": {
+      "by_class": {
+        "counts": {
+          "1": 4678,
+          "2": 6135,
+          "3": 34872,
+          "4": 89302,
+          "5": 268727,
+          "6": 4578
+        },
+        "mapped": {
+          "Limited Access Highway": 4678,
+          "Multi-lane Highway (not limited access)": 6135,
+          "Other Numbered Route": 34872,
+          "Major Road - Arterials and Collectors": 89302,
+          "Minor Street or Road": 268727,
+          "Ramp": 4578
+        }
+      },
+      "by_admin_type": {
+        "counts": {
+          "0": 363220,
+          "1": 2397,
+          "2": 6701,
+          "3": 35974
+        },
+        "mapped": {
+          "Not Applicable": 363220,
+          "Interstate": 2397,
+          "US Highway": 6701,
+          "State Highway": 35974
+        }
+      }
+    },
+    "geographic": {
+      "cities": {
+        "total_cities": 352,
+        "top_10_cities": {
+          "35.0": 16505,
+          "348.0": 7937,
+          "20.0": 6345,
+          "281.0": 6243,
+          "239.0": 5919,
+          "207.0": 4604,
+          "96.0": 4557,
+          "160.0": 4101,
+          "201.0": 4101,
+          "95.0": 3838
+        },
+        "segments_per_city": {
+          "mean": 1159.9204545454545,
+          "median": 864.0,
+          "max": "16505",
+          "min": "5"
+        }
+      },
+      "counties": {
+        "total_counties": 15,
+        "distribution": {
+          "17.0": 77717,
+          "27.0": 56989,
+          "9.0": 42109,
+          "1.0": 37998,
+          "21.0": 36445,
+          "23.0": 36272,
+          "5.0": 30870,
+          "13.0": 26930,
+          "25.0": 19510,
+          "3.0": 15519,
+          "15.0": 11330,
+          "11.0": 9666,
+          "7.0": 4109,
+          "19.0": 2792,
+          "nan": 36
+        }
+      },
+      "total_road_length": {
+        "miles": 48271.49,
+        "kilometers": 77685.24
+      },
+      "length_by_city_top10": {
+        "35.0": 1267.52,
+        "239.0": 774.11,
+        "348.0": 662.1,
+        "20.0": 632.2,
+        "281.0": 602.12,
+        "96.0": 474.06,
+        "36.0": 394.08,
+        "207.0": 373.35,
+        "197.0": 368.59,
+        "261.0": 366.35
+      }
+    },
+    "traffic": {
+      "aadt": {
+        "segments_with_data": 295942,
+        "segments_without_data": 112350,
+        "statistics": {
+          "mean": 5438,
+          "median": 1154,
+          "std": 12318,
+          "min": 10,
+          "max": 225325,
+          "percentiles": {
+            "25th": 1069,
+            "75th": 5185,
+            "90th": 13418,
+            "95th": 19739
+          }
+        },
+        "traffic_volume_categories": {
+          "Very Low (< 1,000)": 47886,
+          "Low (1,000-5,000)": 173024,
+          "Medium (5,000-15,000)": 50130,
+          "High (15,000-30,000)": 17467,
+          "Very High (> 30,000)": 7435
+        }
+      }
+    },
+    "physical": {},
+    "condition": {},
+    "ownership": {},
+    "data_quality": {
+      "field_completeness": {
+        "OBJECTID": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "CLASS": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "ADMIN_TYPE": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "ALTRT1TYPE": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "RDTYPE": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "ROUTE_ID": {
+          "non_null_count": 405263,
+          "non_null_percent": 99.3,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "ROUTE_SYSTEM": {
+          "non_null_count": 406501,
+          "non_null_percent": 99.6,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "ROUTE_NUMBER": {
+          "non_null_count": 405585,
+          "non_null_percent": 99.3,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "ROUTE_DIRECTION": {
+          "non_null_count": 398034,
+          "non_null_percent": 97.5,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "RD_SEG_ID": {
+          "non_null_count": 134230,
+          "non_null_percent": 32.9,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "FM_ST_NAME": {
+          "non_null_count": 326382,
+          "non_null_percent": 79.9,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "TO_ST_NAME": {
+          "non_null_count": 325144,
+          "non_null_percent": 79.6,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "FACILITY": {
+          "non_null_count": 308111,
+          "non_null_percent": 75.5,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "F_CLASS": {
+          "non_null_count": 395041,
+          "non_null_percent": 96.8,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "URBAN_AREA": {
+          "non_null_count": 394740,
+          "non_null_percent": 96.7,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "URBAN_TYPE": {
+          "non_null_count": 394294,
+          "non_null_percent": 96.6,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "F_F_CLASS": {
+          "non_null_count": 394322,
+          "non_null_percent": 96.6,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "JURISDICTN": {
+          "non_null_count": 392623,
+          "non_null_percent": 96.2,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "NHS": {
+          "non_null_count": 385810,
+          "non_null_percent": 94.5,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "FD_AID_RTE": {
+          "non_null_count": 132999,
+          "non_null_percent": 32.6,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "FD_AID_RD": {
+          "non_null_count": 134807,
+          "non_null_percent": 33.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "CONTROL": {
+          "non_null_count": 380484,
+          "non_null_percent": 93.2,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "NUM_LANES": {
+          "non_null_count": 386123,
+          "non_null_percent": 94.6,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "OPP_LANES": {
+          "non_null_count": 385949,
+          "non_null_percent": 94.5,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "SURFACE_TP": {
+          "non_null_count": 379979,
+          "non_null_percent": 93.1,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "SURFACE_WD": {
+          "non_null_count": 379972,
+          "non_null_percent": 93.1,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "SHLDR_RT_W": {
+          "non_null_count": 379891,
+          "non_null_percent": 93.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "SHLDR_RT_T": {
+          "non_null_count": 379495,
+          "non_null_percent": 92.9,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "SHLDR_LT_W": {
+          "non_null_count": 380069,
+          "non_null_percent": 93.1,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "SHLDR_LT_T": {
+          "non_null_count": 379668,
+          "non_null_percent": 93.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "SHLDR_UL_W": {
+          "non_null_count": 379693,
+          "non_null_percent": 93.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "SHLDR_UL_T": {
+          "non_null_count": 379249,
+          "non_null_percent": 92.9,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "MED_WIDTH": {
+          "non_null_count": 379865,
+          "non_null_percent": 93.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "MED_TYPE": {
+          "non_null_count": 379494,
+          "non_null_percent": 92.9,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "CURB": {
+          "non_null_count": 294300,
+          "non_null_percent": 72.1,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "LT_SIDEWLK": {
+          "non_null_count": 380036,
+          "non_null_percent": 93.1,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "RT_SIDEWLK": {
+          "non_null_count": 380053,
+          "non_null_percent": 93.1,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "OPERATION": {
+          "non_null_count": 296716,
+          "non_null_percent": 72.7,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "SPEED_LIM": {
+          "non_null_count": 104916,
+          "non_null_percent": 25.7,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "OP_DIR_SL": {
+          "non_null_count": 81848,
+          "non_null_percent": 20.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "TRUCK": {
+          "non_null_count": 0,
+          "non_null_percent": 0.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "T_EXC_TYPE": {
+          "non_null_count": 378093,
+          "non_null_percent": 92.6,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "T_EXC_TIME": {
+          "non_null_count": 378059,
+          "non_null_percent": 92.6,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "TRK_NETWRK": {
+          "non_null_count": 1410,
+          "non_null_percent": 0.3,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "TRUCK_RTE": {
+          "non_null_count": 378095,
+          "non_null_percent": 92.6,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "ROW_WIDTH": {
+          "non_null_count": 285972,
+          "non_null_percent": 70.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "STRUCT_CND": {
+          "non_null_count": 294711,
+          "non_null_percent": 72.2,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "TERRAIN": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "TOLL_ROAD": {
+          "non_null_count": 892,
+          "non_null_percent": 0.2,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "MHS": {
+          "non_null_count": 278,
+          "non_null_percent": 0.1,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "CITY": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "COUNTY": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "HWY_DIST": {
+          "non_null_count": 408266,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "MPO": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408266,
+          "non_empty_percent": 100.0
+        },
+        "RPA": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408266,
+          "non_empty_percent": 100.0
+        },
+        "RTA": {
+          "non_null_count": 408249,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "MILE_COUNT": {
+          "non_null_count": 394248,
+          "non_null_percent": 96.6,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "AADT": {
+          "non_null_count": 295942,
+          "non_null_percent": 72.5,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "AADT_YEAR": {
+          "non_null_count": 129986,
+          "non_null_percent": 31.8,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "AADT_DERIV": {
+          "non_null_count": 129953,
+          "non_null_percent": 31.8,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "LENGTH_MI": {
+          "non_null_count": 404856,
+          "non_null_percent": 99.2,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "LENGTH_FT": {
+          "non_null_count": 404856,
+          "non_null_percent": 99.2,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "GlobalID": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "LENGTH_MI_NUMERIC": {
+          "non_null_count": 404856,
+          "non_null_percent": 99.2,
+          "non_empty_count": 408292,
+          "non_empty_percent": 100.0
+        },
+        "MGIS_TOWN": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 407979,
+          "non_empty_percent": 99.9
+        },
+        "STREETNAME": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 346325,
+          "non_empty_percent": 84.8
+        },
+        "STREET_NAME": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 346377,
+          "non_empty_percent": 84.8
+        },
+        "RT_NUMBER": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 45070,
+          "non_empty_percent": 11.0
+        },
+        "ALTRTNUM1": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 4558,
+          "non_empty_percent": 1.1
+        },
+        "ALTRTNUM2": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 436,
+          "non_empty_percent": 0.1
+        },
+        "ALTRTNUM3": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 143,
+          "non_empty_percent": 0.0
+        },
+        "ALTRTNUM4": {
+          "non_null_count": 408292,
+          "non_null_percent": 100.0,
+          "non_empty_count": 20,
+          "non_empty_percent": 0.0
+        }
+      },
+      "summary": {
+        "highly_complete_fields": [
+          "OBJECTID",
+          "CLASS",
+          "ADMIN_TYPE",
+          "ALTRT1TYPE",
+          "RDTYPE",
+          "ROUTE_ID",
+          "ROUTE_SYSTEM",
+          "ROUTE_NUMBER",
+          "ROUTE_DIRECTION",
+          "RD_SEG_ID",
+          "FM_ST_NAME",
+          "TO_ST_NAME",
+          "FACILITY",
+          "F_CLASS",
+          "URBAN_AREA",
+          "URBAN_TYPE",
+          "F_F_CLASS",
+          "JURISDICTN",
+          "NHS",
+          "FD_AID_RTE",
+          "FD_AID_RD",
+          "CONTROL",
+          "NUM_LANES",
+          "OPP_LANES",
+          "SURFACE_TP",
+          "SURFACE_WD",
+          "SHLDR_RT_W",
+          "SHLDR_RT_T",
+          "SHLDR_LT_W",
+          "SHLDR_LT_T",
+          "SHLDR_UL_W",
+          "SHLDR_UL_T",
+          "MED_WIDTH",
+          "MED_TYPE",
+          "CURB",
+          "LT_SIDEWLK",
+          "RT_SIDEWLK",
+          "OPERATION",
+          "SPEED_LIM",
+          "OP_DIR_SL",
+          "TRUCK",
+          "T_EXC_TYPE",
+          "T_EXC_TIME",
+          "TRK_NETWRK",
+          "TRUCK_RTE",
+          "ROW_WIDTH",
+          "STRUCT_CND",
+          "TERRAIN",
+          "TOLL_ROAD",
+          "MHS",
+          "MGIS_TOWN",
+          "CITY",
+          "COUNTY",
+          "HWY_DIST",
+          "MPO",
+          "RPA",
+          "RTA",
+          "MILE_COUNT",
+          "AADT",
+          "AADT_YEAR",
+          "AADT_DERIV",
+          "LENGTH_MI",
+          "LENGTH_FT",
+          "GlobalID",
+          "LENGTH_MI_NUMERIC"
+        ],
+        "poorly_complete_fields": [
+          "ALTRTNUM1",
+          "ALTRTNUM2",
+          "ALTRTNUM3",
+          "ALTRTNUM4"
+        ],
+        "average_completeness": 92.8
+      }
+    }
+  }
+}
