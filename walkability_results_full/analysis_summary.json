@@ -1,0 +1,126 @@
+{
+  "analysis_date": "2025-06-02T19:00:57.658084",
+  "total_features": 408292,
+  "processed_features": 408292,
+  "features_with_complete_data": 96159,
+  "percentage_complete": 23.551526848432005,
+  "user_classes": [
+    "seniors",
+    "children",
+    "mobility_impaired",
+    "athletes",
+    "standard"
+  ],
+  "score_statistics": {
+    "seniors": {
+      "count": 96159,
+      "mean": 57.01,
+      "median": 65.0,
+      "std": 24.61,
+      "min": 15.0,
+      "max": 97.0,
+      "percentiles": {
+        "10th": 28.0,
+        "25th": 34.0,
+        "50th": 65.0,
+        "75th": 79.0,
+        "90th": 89.0
+      },
+      "score_distribution": {
+        "Excellent (80-100)": 23650,
+        "Good (60-80)": 27076,
+        "Fair (40-60)": 4006,
+        "Poor (20-40)": 38943,
+        "Very Poor (0-20)": 2484
+      }
+    },
+    "children": {
+      "count": 96159,
+      "mean": 47.57,
+      "median": 44.0,
+      "std": 23.27,
+      "min": 3.0,
+      "max": 100.0,
+      "percentiles": {
+        "10th": 21.0,
+        "25th": 32.0,
+        "50th": 44.0,
+        "75th": 69.0,
+        "90th": 82.0
+      },
+      "score_distribution": {
+        "Excellent (80-100)": 12570,
+        "Good (60-80)": 16569,
+        "Fair (40-60)": 24442,
+        "Poor (20-40)": 33837,
+        "Very Poor (0-20)": 8741
+      }
+    },
+    "mobility_impaired": {
+      "count": 96159,
+      "mean": 43.95,
+      "median": 39.0,
+      "std": 25.62,
+      "min": 15.5,
+      "max": 88.5,
+      "percentiles": {
+        "10th": 19.5,
+        "25th": 21.5,
+        "50th": 39.0,
+        "75th": 67.0,
+        "90th": 84.5
+      },
+      "score_distribution": {
+        "Excellent (80-100)": 17235,
+        "Good (60-80)": 8648,
+        "Fair (40-60)": 18753,
+        "Poor (20-40)": 31210,
+        "Very Poor (0-20)": 20313
+      }
+    },
+    "athletes": {
+      "count": 96159,
+      "mean": 51.82,
+      "median": 52.0,
+      "std": 7.08,
+      "min": 28.5,
+      "max": 87.5,
+      "percentiles": {
+        "10th": 43.5,
+        "25th": 47.0,
+        "50th": 52.0,
+        "75th": 56.0,
+        "90th": 60.5
+      },
+      "score_distribution": {
+        "Excellent (80-100)": 29,
+        "Good (60-80)": 10803,
+        "Fair (40-60)": 80540,
+        "Poor (20-40)": 4787,
+        "Very Poor (0-20)": 0
+      }
+    },
+    "standard": {
+      "count": 96159,
+      "mean": 49.59,
+      "median": 53.5,
+      "std": 25.14,
+      "min": 2.5,
+      "max": 96.0,
+      "percentiles": {
+        "10th": 19.5,
+        "25th": 29.5,
+        "50th": 53.5,
+        "75th": 72.5,
+        "90th": 83.0
+      },
+      "score_distribution": {
+        "Excellent (80-100)": 12981,
+        "Good (60-80)": 28601,
+        "Fair (40-60)": 10219,
+        "Poor (20-40)": 34630,
+        "Very Poor (0-20)": 9728
+      }
+    }
+  }
+}

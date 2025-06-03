@@ -103,10 +103,10 @@ def load_geojson_features_by_index(indices):
     return features
 
 @st.cache_data
-def build_road_network(user_class, city=None):
-    """Build a network graph from road segments with walkability scores as weights."""
-    # Load score data
-    score_df = load_score_data(user_class, city_filter=[city] if city else None)
+def build_road_network_for_area(user_class, center_point, radius_miles=5):
+    """Build a network graph for roads within a radius of a center point."""
+    # Load all score data
+    score_df = load_score_data(user_class)
     
     if score_df is None or score_df.empty:
         return None, None
@@ -115,12 +115,35 @@ def build_road_network(user_class, city=None):
     feature_indices = score_df['feature_index'].tolist()
     features = load_geojson_features_by_index(feature_indices)
     
-    # Create network graph
+    # Filter features within radius
+    center_lon, center_lat = center_point
+    radius_deg = radius_miles / 69.0  # Rough conversion from miles to degrees
+    
+    filtered_indices = []
+    for idx, feature in enumerate(features):
+        geom = feature.get('geometry', {})
+        coords = []
+        if geom.get('type') == 'LineString' and geom.get('coordinates'):
+            coords = geom['coordinates']
+        elif geom.get('type') == 'MultiLineString' and geom.get('coordinates'):
+            if geom['coordinates']:
+                coords = geom['coordinates'][0]
+        
+        if coords:
+            # Check if any point is within radius
+            for lon, lat in coords:
+                dist = np.sqrt((lon - center_lon)**2 + (lat - center_lat)**2)
+                if dist <= radius_deg:
+                    filtered_indices.append(idx)
+                    break
+    
+    # Create network graph with filtered data
     G = nx.Graph()
     road_segments = {}
     
-    for idx, (_, row) in enumerate(score_df.iterrows()):
-        if idx < len(features):
+    for idx in filtered_indices:
+        if idx < len(score_df):
+            row = score_df.iloc[idx]
             feature = features[idx]
             geom = feature.get('geometry', {})
             props = feature.get('properties', {})
@@ -130,7 +153,6 @@ def build_road_network(user_class, city=None):
             if geom.get('type') == 'LineString' and geom.get('coordinates'):
                 coords = geom['coordinates']
             elif geom.get('type') == 'MultiLineString' and geom.get('coordinates'):
-                # Use first linestring
                 if geom['coordinates']:
                     coords = geom['coordinates'][0]
             
@@ -141,7 +163,6 @@ def build_road_network(user_class, city=None):
                     end = tuple(coords[i + 1])
                     
                     # Calculate edge weight (inverse of score for shortest path)
-                    # Higher scores = lower weights = preferred routes
                     score = row['score']
                     weight = 100 - score  # Invert score
                     
@@ -701,203 +722,213 @@ if summary:
         st.header("🧭 Optimal Route Finder")
         st.markdown(f"Find the most walkable route for **{user_class.replace('_', ' ').title()}** users")
         
-        # City selection for routing
-        routing_city = st.selectbox(
-            "Select city for routing",
-            options=data_info['cities'],
-            index=data_info['cities'].index('BOSTON') if 'BOSTON' in data_info['cities'] else 0
-        )
+        # Initialize session state for points if not exists
+        if 'start_point' not in st.session_state:
+            st.session_state.start_point = None
+        if 'end_point' not in st.session_state:
+            st.session_state.end_point = None
         
-        # Build network for selected city
-        with st.spinner(f"Building road network for {routing_city}..."):
-            G, road_segments = build_road_network(user_class, routing_city)
+        # Check if map can be displayed
+        st.warning("⚠️ Interactive map is not displaying. Please use the alternative methods below to set your route points.")
         
-        if G and len(G.nodes()) > 0:
-            st.success(f"Road network loaded: {len(G.nodes()):,} intersections, {len(G.edges()):,} road segments")
+        # Alternative Input Methods
+        st.subheader("Select Route Points")
+        
+        # Tab for different input methods
+        input_tab1, input_tab2, input_tab3 = st.tabs(["🏢 Popular Locations", "📍 Manual Coordinates", "🏙️ City Search"])
+        
+        with input_tab1:
+            st.markdown("### Select from Popular Massachusetts Locations")
             
-            # Get bounds of the network
-            all_nodes = list(G.nodes())
-            lons = [node[0] for node in all_nodes]
-            lats = [node[1] for node in all_nodes]
-            
-            # Initialize session state for points if not exists
-            if 'start_point' not in st.session_state:
-                st.session_state.start_point = None
-            if 'end_point' not in st.session_state:
-                st.session_state.end_point = None
-            
-            # Instructions
-            st.info("📍 Click on the map below to set your start and end points. First click sets the start (green), second click sets the end (red).")
-            
-            # Create interactive map for point selection
-            center_lat = np.mean(lats)
-            center_lon = np.mean(lons)
-            
-            # Create the selection map
-            selection_map = folium.Map(
-                location=[center_lat, center_lon], 
-                zoom_start=12,
-                tiles='OpenStreetMap'
-            )
-            
-            # Add road network overlay to show available roads
-            # Sample the road segments to avoid overcrowding
-            sample_size = min(500, len(road_segments))
-            sampled_segments = dict(list(road_segments.items())[:sample_size])
-            
-            for seg_id, seg_info in sampled_segments.items():
-                coords = seg_info['coords']
-                # Convert to lat,lon for folium
-                folium_coords = [[lat, lon] for lon, lat in coords]
-                
-                folium.PolyLine(
-                    folium_coords,
-                    color='blue',
-                    weight=2,
-                    opacity=0.3,
-                    popup=f"{seg_info['street_name']}"
-                ).add_to(selection_map)
-            
-            # Add click functionality using JavaScript
-            click_js = """
-            <script>
-            var clicks = 0;
-            var startPoint = null;
-            var endPoint = null;
-            
-            function onMapClick(e) {
-                clicks++;
-                if (clicks % 2 == 1) {
-                    // First click - start point
-                    startPoint = [e.latlng.lng, e.latlng.lat];
-                    document.getElementById('start_coords').value = startPoint.join(',');
-                    document.getElementById('start_coords').dispatchEvent(new Event('change'));
-                } else {
-                    // Second click - end point
-                    endPoint = [e.latlng.lng, e.latlng.lat];
-                    document.getElementById('end_coords').value = endPoint.join(',');
-                    document.getElementById('end_coords').dispatchEvent(new Event('change'));
+            locations = {
+                "Boston": {
+                    "Boston Common": {"lat": 42.3551, "lon": -71.0657},
+                    "MIT Campus": {"lat": 42.3601, "lon": -71.0942},
+                    "Harvard Square": {"lat": 42.3732, "lon": -71.1189},
+                    "Fenway Park": {"lat": 42.3467, "lon": -71.0972},
+                    "Boston Public Library": {"lat": 42.3492, "lon": -71.0780},
+                    "North End": {"lat": 42.3647, "lon": -71.0542},
+                    "Back Bay": {"lat": 42.3503, "lon": -71.0810},
+                    "South Station": {"lat": 42.3519, "lon": -71.0552},
+                    "Copley Square": {"lat": 42.3496, "lon": -71.0777},
+                    "Charles River Esplanade": {"lat": 42.3543, "lon": -71.0735}
+                },
+                "Cambridge": {
+                    "Harvard University": {"lat": 42.3770, "lon": -71.1167},
+                    "MIT": {"lat": 42.3601, "lon": -71.0942},
+                    "Central Square": {"lat": 42.3651, "lon": -71.1037},
+                    "Porter Square": {"lat": 42.3884, "lon": -71.1192}
+                },
+                "Other Cities": {
+                    "Worcester Downtown": {"lat": 42.2626, "lon": -71.8023},
+                    "Springfield Downtown": {"lat": 42.1015, "lon": -72.5898},
+                    "Lowell Downtown": {"lat": 42.6334, "lon": -71.3162},
+                    "Salem Downtown": {"lat": 42.5195, "lon": -70.8967},
+                    "Plymouth Downtown": {"lat": 41.9584, "lon": -70.6673}
                 }
             }
             
-            // Wait for map to load
-            setTimeout(function() {
-                var map = window[Object.keys(window).find(key => key.startsWith('map_'))];
-                if (map) {
-                    map.on('click', onMapClick);
-                }
-            }, 1000);
-            </script>
+            col1, col2 = st.columns(2)
             
-            <input type="hidden" id="start_coords" value="">
-            <input type="hidden" id="end_coords" value="">
-            """
+            with col1:
+                st.markdown("#### Start Point")
+                start_area = st.selectbox("Select area:", list(locations.keys()), key="start_area")
+                start_location = st.selectbox("Select location:", list(locations[start_area].keys()), key="start_location")
+                
+            with col2:
+                st.markdown("#### End Point")
+                end_area = st.selectbox("Select area:", list(locations.keys()), key="end_area")
+                end_location = st.selectbox("Select location:", list(locations[end_area].keys()), key="end_location")
             
-            # Add the click handler
-            selection_map.get_root().html.add_child(folium.Element(click_js))
+            if st.button("Set Selected Locations", type="primary", key="set_locations"):
+                start = locations[start_area][start_location]
+                end = locations[end_area][end_location]
+                st.session_state.start_point = (start["lon"], start["lat"])
+                st.session_state.end_point = (end["lon"], end["lat"])
+                st.success(f"Route set from {start_location} to {end_location}!")
+                st.rerun()
+        
+        with input_tab2:
+            st.markdown("### Enter Coordinates Manually")
+            st.info("Tip: You can find coordinates on Google Maps by right-clicking and selecting 'What's here?'")
             
-            # Add existing markers if points are set
-            if st.session_state.start_point:
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("#### Start Point")
+                start_lat = st.number_input("Latitude", min_value=41.0, max_value=43.0, value=42.3601, step=0.0001, key="manual_start_lat")
+                start_lon = st.number_input("Longitude", min_value=-74.0, max_value=-69.0, value=-71.0589, step=0.0001, key="manual_start_lon")
+                
+            with col2:
+                st.markdown("#### End Point")
+                end_lat = st.number_input("Latitude", min_value=41.0, max_value=43.0, value=42.3551, step=0.0001, key="manual_end_lat")
+                end_lon = st.number_input("Longitude", min_value=-74.0, max_value=-69.0, value=-71.0549, step=0.0001, key="manual_end_lon")
+            
+            if st.button("Set Manual Coordinates", type="primary", key="set_manual"):
+                st.session_state.start_point = (start_lon, start_lat)
+                st.session_state.end_point = (end_lon, end_lat)
+                st.success("Coordinates set successfully!")
+                st.rerun()
+        
+        with input_tab3:
+            st.markdown("### Search by City/Address")
+            st.info("Enter city names or addresses in Massachusetts")
+            
+            # Load cities from the dataset
+            available_cities = data_info['cities']
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("#### Start Location")
+                start_city = st.selectbox("Select city:", available_cities, key="search_start_city")
+                
+            with col2:
+                st.markdown("#### End Location")
+                end_city = st.selectbox("Select city:", available_cities, key="search_end_city")
+            
+            # City center coordinates (approximate)
+            city_coords = {
+                "BOSTON": {"lat": 42.3601, "lon": -71.0589},
+                "CAMBRIDGE": {"lat": 42.3736, "lon": -71.1097},
+                "WORCESTER": {"lat": 42.2626, "lon": -71.8023},
+                "SPRINGFIELD": {"lat": 42.1015, "lon": -72.5898},
+                "LOWELL": {"lat": 42.6334, "lon": -71.3162},
+                "NEWTON": {"lat": 42.3370, "lon": -71.2092},
+                "SOMERVILLE": {"lat": 42.3876, "lon": -71.0995},
+                "QUINCY": {"lat": 42.2529, "lon": -71.0023},
+                "BROOKLINE": {"lat": 42.3318, "lon": -71.1212},
+                "MEDFORD": {"lat": 42.4184, "lon": -71.1062}
+            }
+            
+            if st.button("Set City Centers", type="primary", key="set_cities"):
+                # Try to find coordinates for selected cities
+                start_coords = city_coords.get(start_city.upper(), {"lat": 42.3601, "lon": -71.0589})
+                end_coords = city_coords.get(end_city.upper(), {"lat": 42.3551, "lon": -71.0549})
+                
+                st.session_state.start_point = (start_coords["lon"], start_coords["lat"])
+                st.session_state.end_point = (end_coords["lon"], end_coords["lat"])
+                st.success(f"Route set from {start_city} to {end_city}!")
+                st.rerun()
+        
+        st.divider()
+        
+        # Display current selection
+        if st.session_state.start_point and st.session_state.end_point:
+            st.subheader("Current Route Selection")
+            col1, col2, col3 = st.columns([2, 2, 1])
+            with col1:
+                st.success(f"✅ Start: {st.session_state.start_point[1]:.6f}, {st.session_state.start_point[0]:.6f}")
+            with col2:
+                st.success(f"✅ End: {st.session_state.end_point[1]:.6f}, {st.session_state.end_point[0]:.6f}")
+            with col3:
+                if st.button("Clear Points", type="secondary"):
+                    st.session_state.start_point = None
+                    st.session_state.end_point = None
+                    st.rerun()
+            
+            # Try to show a static preview
+            try:
+                # Create a simple preview map
+                preview_map = folium.Map(
+                    location=[(st.session_state.start_point[1] + st.session_state.end_point[1]) / 2,
+                              (st.session_state.start_point[0] + st.session_state.end_point[0]) / 2],
+                    zoom_start=11
+                )
+                
+                # Add markers
                 folium.Marker(
                     [st.session_state.start_point[1], st.session_state.start_point[0]],
                     popup="Start",
                     icon=folium.Icon(color='green', icon='play')
-                ).add_to(selection_map)
-            
-            if st.session_state.end_point:
+                ).add_to(preview_map)
+                
                 folium.Marker(
                     [st.session_state.end_point[1], st.session_state.end_point[0]],
                     popup="End",
                     icon=folium.Icon(color='red', icon='stop')
-                ).add_to(selection_map)
-            
-            # Display the selection map
-            map_data = st_folium(
-                selection_map,
-                key="route_selection_map",
-                width=None,
-                height=400,
-                returned_objects=["last_object_clicked"]
-            )
-            
-            # Process clicks
-            if map_data['last_object_clicked'] is not None:
-                coords = map_data['last_object_clicked']['lat'], map_data['last_object_clicked']['lng']
+                ).add_to(preview_map)
                 
-                # Toggle between start and end point
-                if st.session_state.start_point is None or (st.session_state.start_point is not None and st.session_state.end_point is not None):
-                    st.session_state.start_point = (coords[1], coords[0])  # lon, lat
-                    st.session_state.end_point = None
-                    st.rerun()
-                elif st.session_state.end_point is None:
-                    st.session_state.end_point = (coords[1], coords[0])  # lon, lat
-                    st.rerun()
-            
-            # Manual input as fallback
-            with st.expander("Manual Coordinate Entry (Optional)"):
-                col1, col2 = st.columns(2)
+                # Draw line
+                folium.PolyLine(
+                    [[st.session_state.start_point[1], st.session_state.start_point[0]],
+                     [st.session_state.end_point[1], st.session_state.end_point[0]]],
+                    color='blue',
+                    weight=2,
+                    opacity=0.6,
+                    dash_array='10'
+                ).add_to(preview_map)
                 
-                with col1:
-                    st.subheader("Start Point")
-                    start_lon = st.number_input(
-                        "Start Longitude", 
-                        min_value=min(lons), 
-                        max_value=max(lons),
-                        value=st.session_state.start_point[0] if st.session_state.start_point else np.median(lons),
-                        format="%.6f",
-                        key="start_lon_input"
-                    )
-                    start_lat = st.number_input(
-                        "Start Latitude",
-                        min_value=min(lats),
-                        max_value=max(lats),
-                        value=st.session_state.start_point[1] if st.session_state.start_point else np.median(lats),
-                        format="%.6f",
-                        key="start_lat_input"
-                    )
-                    if st.button("Set Start Point"):
-                        st.session_state.start_point = (start_lon, start_lat)
-                        st.rerun()
-                
-                with col2:
-                    st.subheader("End Point")
-                    end_lon = st.number_input(
-                        "End Longitude",
-                        min_value=min(lons),
-                        max_value=max(lons),
-                        value=st.session_state.end_point[0] if st.session_state.end_point else np.median(lons) + 0.01,
-                        format="%.6f",
-                        key="end_lon_input"
-                    )
-                    end_lat = st.number_input(
-                        "End Latitude",
-                        min_value=min(lats),
-                        max_value=max(lats),
-                        value=st.session_state.end_point[1] if st.session_state.end_point else np.median(lats) + 0.01,
-                        format="%.6f",
-                        key="end_lat_input"
-                    )
-                    if st.button("Set End Point"):
-                        st.session_state.end_point = (end_lon, end_lat)
-                        st.rerun()
+                # Try HTML display
+                st.markdown("### Route Preview")
+                map_html = preview_map._repr_html_()
+                st.components.v1.html(map_html, height=400)
+            except:
+                # If map fails, just show distance
+                dist = np.sqrt((st.session_state.end_point[0] - st.session_state.start_point[0])**2 + 
+                              (st.session_state.end_point[1] - st.session_state.start_point[1])**2)
+                dist_miles = dist * 69
+                st.info(f"Approximate direct distance: {dist_miles:.2f} miles")
+        else:
+            st.info("Please select both start and end points using one of the methods above.")
+        
+        # Find route button
+        if st.button("Find Optimal Route", type="primary", disabled=(st.session_state.start_point is None or st.session_state.end_point is None)):
+            start_point = st.session_state.start_point
+            end_point = st.session_state.end_point
             
-            # Display current selection
-            if st.session_state.start_point or st.session_state.end_point:
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.session_state.start_point:
-                        st.success(f"✅ Start: {st.session_state.start_point[1]:.6f}, {st.session_state.start_point[0]:.6f}")
-                    else:
-                        st.info("❌ Start point not set")
-                with col2:
-                    if st.session_state.end_point:
-                        st.success(f"✅ End: {st.session_state.end_point[1]:.6f}, {st.session_state.end_point[0]:.6f}")
-                    else:
-                        st.info("❌ End point not set")
+            # Calculate center point between start and end
+            center_point = ((start_point[0] + end_point[0]) / 2, (start_point[1] + end_point[1]) / 2)
             
-            if st.button("Find Optimal Route", type="primary", disabled=(st.session_state.start_point is None or st.session_state.end_point is None)):
-                start_point = st.session_state.start_point
-                end_point = st.session_state.end_point
+            # Calculate radius (distance between points plus some buffer)
+            distance = np.sqrt((end_point[0] - start_point[0])**2 + (end_point[1] - start_point[1])**2)
+            radius_miles = max(distance * 69 * 1.5, 5)  # Convert to miles and add 50% buffer, minimum 5 miles
+            
+            with st.spinner(f"Building road network for the area (radius: {radius_miles:.1f} miles)..."):
+                G, road_segments = build_road_network_for_area(user_class, center_point, radius_miles)
+            
+            if G and len(G.nodes()) > 0:
+                st.success(f"Road network loaded: {len(G.nodes()):,} intersections, {len(G.edges()):,} road segments")
                 
                 with st.spinner("Calculating optimal route..."):
                     route_info = find_optimal_route(G, start_point, end_point)
@@ -935,37 +966,33 @@ if summary:
                                      annotation_text=f"Average: {route_info['avg_score']:.1f}")
                         st.plotly_chart(fig, use_container_width=True)
                 else:
-                    st.error("No route found between these points. Try different locations.")
+                    st.error("No route found between these points. Try selecting points closer together or in areas with more road coverage.")
+            else:
+                st.error("No road network data available in this area. Try selecting a different location.")
+        
+        # Instructions
+        with st.expander("How to use the Route Finder"):
+            st.markdown("""
+            1. **Click on the map** to set your route:
+               - First click: Sets the start point (green marker)
+               - Second click: Sets the end point (red marker)
+               - Click again to reset and choose new points
+            2. Click **Find Optimal Route** to calculate the most walkable path
+            3. The algorithm will:
+               - Automatically load roads in the area between your points
+               - Find routes that maximize walkability scores for your user class
+               - Avoid low-scoring roads when possible
+               - Show the average walkability score for the entire route
+            4. The route map shows:
+               - Green marker: Start point
+               - Red marker: End point
+               - Colored path: Route segments colored by walkability score
             
-            # Instructions
-            with st.expander("How to use the Route Finder"):
-                st.markdown("""
-                1. **Select a city** from the dropdown
-                2. **Click on the map** to set your route:
-                   - First click: Sets the start point (green marker)
-                   - Second click: Sets the end point (red marker)
-                   - Click again to reset and choose new points
-                3. **Alternative**: Use the "Manual Coordinate Entry" section if you have specific coordinates
-                4. Click **Find Optimal Route** to calculate the most walkable path
-                5. The algorithm will:
-                   - Find routes that maximize walkability scores for your user class
-                   - Avoid low-scoring roads when possible
-                   - Show the average walkability score for the entire route
-                6. The route map shows:
-                   - Green marker: Start point
-                   - Red marker: End point
-                   - Colored path: Route segments colored by walkability score
-                
-                **Note**: The route finder works best within a single city. Make sure both points are within the selected city's road network.
-                """)
-            
-            # Clear points button
-            if st.button("Clear Points", type="secondary"):
-                st.session_state.start_point = None
-                st.session_state.end_point = None
-                st.rerun()
-        else:
-            st.error(f"No road network data available for {routing_city}")
+            **Tips**: 
+            - For best results, choose points within the same general area
+            - The system works with all of Massachusetts
+            - Zoom in on the map for more precise point selection
+            """)
     
     with tab5:
         st.header("Score Distribution Analysis")
